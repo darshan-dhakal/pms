@@ -1,12 +1,13 @@
 import express from "express";
 import { TaskController } from "../controllers/task.controller";
-import { authenticate } from "../middleware/auth.middleware";
+import { authenticate, taskAssignment } from "../middleware/auth.middleware";
 
 export const taskRoutes = express.Router();
 
-// Task routes - All require authentication
-taskRoutes.post("/", authenticate, TaskController.createTask);
+// Create task - Limited to SUPER_ADMIN, ADMIN, PROJECT_MANAGER, TEAM_LEAD
+taskRoutes.post("/", authenticate, taskAssignment, TaskController.createTask);
 
+// Read operations - All authenticated users
 taskRoutes.get("/", authenticate, TaskController.getAllTasks);
 
 taskRoutes.get(
@@ -17,6 +18,18 @@ taskRoutes.get(
 
 taskRoutes.get("/:id", authenticate, TaskController.getTaskById);
 
-taskRoutes.patch("/:id", authenticate, TaskController.updateTask);
+// Update task (including assignment) - Limited to SUPER_ADMIN, ADMIN, PROJECT_MANAGER, TEAM_LEAD
+taskRoutes.patch(
+  "/:id",
+  authenticate,
+  taskAssignment,
+  TaskController.updateTask
+);
 
-taskRoutes.delete("/:id", authenticate, TaskController.deleteTask);
+// Delete task - Limited to SUPER_ADMIN, ADMIN, PROJECT_MANAGER, TEAM_LEAD
+taskRoutes.delete(
+  "/:id",
+  authenticate,
+  taskAssignment,
+  TaskController.deleteTask
+);

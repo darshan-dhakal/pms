@@ -1,18 +1,25 @@
 import express from "express";
 import { TeamMemberController } from "../controllers/team-member.controller";
-import { authenticate } from "../middleware/auth.middleware";
+import { authenticate, teamManagement } from "../middleware/auth.middleware";
 
 export const teamMemberRoutes = express.Router();
 
-// Team Member routes - All require authentication
-teamMemberRoutes.post("/", authenticate, TeamMemberController.addMemberToTeam);
+// Add and remove members - Limited to SUPER_ADMIN, ADMIN, PROJECT_MANAGER
+teamMemberRoutes.post(
+  "/",
+  authenticate,
+  teamManagement,
+  TeamMemberController.addMemberToTeam
+);
 
 teamMemberRoutes.delete(
   "/:userId/:teamId",
   authenticate,
+  teamManagement,
   TeamMemberController.removeMemberFromTeam
 );
 
+// Read operations - All authenticated users
 teamMemberRoutes.get(
   "/team/:teamId",
   authenticate,
@@ -25,8 +32,10 @@ teamMemberRoutes.get(
   TeamMemberController.getUserTeams
 );
 
+// Update member role - Limited to SUPER_ADMIN, ADMIN, PROJECT_MANAGER
 teamMemberRoutes.patch(
   "/:userId/:teamId",
   authenticate,
+  teamManagement,
   TeamMemberController.updateMemberRole
 );

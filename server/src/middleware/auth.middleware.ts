@@ -86,3 +86,21 @@ export const managerAndAbove = authorize(
   UserRole.ADMIN,
   UserRole.PROJECT_MANAGER
 );
+/**
+ * Team management middleware - SUPER_ADMIN, ADMIN, PROJECT_MANAGER only
+ */
+export const teamManagement = authorize(
+  UserRole.SUPER_ADMIN,
+  UserRole.ADMIN,
+  UserRole.PROJECT_MANAGER
+);
+
+/**
+ * Task assignment middleware - SUPER_ADMIN, ADMIN, PROJECT_MANAGER, TEAM_LEAD
+ */
+export const taskAssignment = authorize(
+  UserRole.SUPER_ADMIN,
+  UserRole.ADMIN,
+  UserRole.PROJECT_MANAGER,
+  UserRole.TEAM_LEAD
+);
