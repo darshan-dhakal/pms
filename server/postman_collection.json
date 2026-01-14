@@ -752,7 +752,7 @@
                 "tasks"
               ]
             },
-            "description": "Create a new task. Requires authentication."
+            "description": "Create a new task. Allowed roles: SUPER_ADMIN, ADMIN, PROJECT_MANAGER, TEAM_LEAD."
           }
         },
         {
@@ -883,7 +883,7 @@
                 }
               ]
             },
-            "description": "Update task details. Requires authentication."
+            "description": "Update task details or assignment. Allowed roles: SUPER_ADMIN, ADMIN, PROJECT_MANAGER, TEAM_LEAD."
           }
         },
         {
@@ -914,7 +914,7 @@
                 }
               ]
             },
-            "description": "Delete a task. Requires authentication."
+            "description": "Delete a task. Allowed roles: SUPER_ADMIN, ADMIN, PROJECT_MANAGER, TEAM_LEAD."
           }
         }
       ]
@@ -956,7 +956,7 @@
                 "teams"
               ]
             },
-            "description": "Create a new team. Requires authentication."
+            "description": "Create a new team. Allowed roles: SUPER_ADMIN, ADMIN, PROJECT_MANAGER."
           }
         },
         {
@@ -1055,7 +1055,7 @@
                 }
               ]
             },
-            "description": "Update team details. Requires authentication."
+            "description": "Update team details. Allowed roles: SUPER_ADMIN, ADMIN, PROJECT_MANAGER."
           }
         },
         {
@@ -1086,7 +1086,7 @@
                 }
               ]
             },
-            "description": "Delete a team. Requires authentication."
+            "description": "Delete a team. Allowed roles: SUPER_ADMIN, ADMIN, PROJECT_MANAGER."
           }
         }
       ]
@@ -1128,7 +1128,7 @@
                 "team-members"
               ]
             },
-            "description": "Add a member to a team. Role options: OWNER, ADMIN, MEMBER. Requires authentication."
+            "description": "Add a member to a team. Role options: OWNER, ADMIN, MEMBER. Allowed roles: SUPER_ADMIN, ADMIN, PROJECT_MANAGER."
           }
         },
         {
@@ -1241,7 +1241,7 @@
                 }
               ]
             },
-            "description": "Update a team member's role. Available roles: OWNER, ADMIN, MEMBER. Requires authentication."
+            "description": "Update a team member's role. Available roles: OWNER, ADMIN, MEMBER. Allowed roles: SUPER_ADMIN, ADMIN, PROJECT_MANAGER."
           }
         },
         {
@@ -1277,7 +1277,7 @@
                 }
               ]
             },
-            "description": "Remove a member from a team. Requires authentication."
+            "description": "Remove a member from a team. Allowed roles: SUPER_ADMIN, ADMIN, PROJECT_MANAGER."
           }
         }
       ]
