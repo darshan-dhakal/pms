@@ -1,11 +1,21 @@
 import express from "express";
 import { TeamController } from "../controllers/team.controller";
-import { authenticate, teamManagement } from "../middleware/auth.middleware";
+import {
+  authenticate,
+  checkEmailVerified,
+  teamManagement,
+} from "../middleware/auth.middleware";
 
 export const teamRoutes = express.Router();
 
 // Team creation and member management - Limited to SUPER_ADMIN, ADMIN, PROJECT_MANAGER
-teamRoutes.post("/", authenticate, teamManagement, TeamController.createTeam);
+teamRoutes.post(
+  "/",
+  authenticate,
+  teamManagement,
+  checkEmailVerified,
+  TeamController.createTeam,
+);
 
 // Read operations - All authenticated users
 teamRoutes.get("/", authenticate, TeamController.getAllTeams);
@@ -17,12 +27,12 @@ teamRoutes.patch(
   "/:id",
   authenticate,
   teamManagement,
-  TeamController.updateTeam
+  TeamController.updateTeam,
 );
 
 teamRoutes.delete(
   "/:id",
   authenticate,
   teamManagement,
-  TeamController.deleteTeam
+  TeamController.deleteTeam,
 );
