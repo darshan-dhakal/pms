@@ -6,6 +6,7 @@ import { generateToken, hashToken } from "../utils/token";
 import jwt from "jsonwebtoken";
 import type { Secret } from "jsonwebtoken";
 import { generateJWT } from "../utils/jwt";
+import { generateOTP, hashOTP, verifyOTP, sendOTPEmail } from "../utils/otp";
 
 const JWT_SECRET: Secret = process.env.JWT_SECRET || "your_jwt_secret";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
@@ -31,7 +32,7 @@ export class AuthService {
     const emailVerificationToken = generateToken(32);
     const hashedEmailToken = hashToken(emailVerificationToken);
     const emailVerificationExpiresAt = new Date(
-      Date.now() + 24 * 60 * 60 * 1000
+      Date.now() + 24 * 60 * 60 * 1000,
     ); // 24 hours from now
 
     const user = this.userRepo.create({
@@ -108,7 +109,7 @@ export class AuthService {
     const emailVerificationToken = generateToken(32);
     const hashedEmailToken = hashToken(emailVerificationToken);
     const emailVerificationExpiresAt = new Date(
-      Date.now() + 24 * 60 * 60 * 1000
+      Date.now() + 24 * 60 * 60 * 1000,
     ); // 24 hours from now
 
     // Update user with new token
@@ -149,6 +150,104 @@ export class AuthService {
     if (!user.isEmailVerified) {
       throw new Error("Email not verified");
     }
+
+    return await this.sendLoginOTP(email);
+  }
+
+  //   const token = generateJWT({
+  //     id: user.id,
+  //     email: user.email,
+  //     role: user.role,
+  //   });
+
+  //   return {
+  //     token,
+  //     user: {
+  //       id: user.id,
+  //       firstName: user.firstName,
+  //       lastName: user.lastName,
+  //       email: user.email,
+  //       role: user.role,
+  //     },
+  //     message: "Login successful",
+  //   };
+  // }
+
+  async sendLoginOTP(email: string) {
+    const user = await this.userRepo.findOne({
+      where: { email },
+      select: [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "isEmailVerified",
+        "role",
+      ],
+    });
+    if (!user) {
+      throw new Error("Invalid email or password");
+    }
+    if (!user.isEmailVerified) {
+      throw new Error("Email not verified");
+    }
+
+    // Generate OTP
+    const otp = generateOTP();
+    const hashedOTP = hashOTP(otp);
+    const otpExpiresAt = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
+
+    user.loginOtp = hashedOTP;
+    user.loginOtpExpiresAt = otpExpiresAt;
+    await this.userRepo.save(user);
+
+    // Send OTP via email
+    try {
+      await sendOTPEmail(user.email, otp);
+    } catch (error) {
+      console.error("Error sending OTP email:", error);
+      throw new Error("Failed to send OTP email");
+    }
+    return { message: "OTP sent to email successfully", expiresAt: 300 };
+  }
+
+  async verifyLoginOTP(email: string, otp: string) {
+    const user = await this.userRepo.findOne({
+      where: { email },
+      select: [
+        "id",
+        "firstName",
+        "lastName",
+        "email",
+        "loginOtp",
+        "loginOtpExpiresAt",
+        "isEmailVerified",
+        "role",
+      ],
+    });
+    if (!user) {
+      throw new Error("Invalid email or OTP");
+    }
+    if (!user.isEmailVerified) {
+      throw new Error("Email not verified");
+    }
+
+    if (!user.loginOtp) {
+      throw new Error("No OTP found. Please request a new one.");
+    }
+    // Check if OTP has expired
+    if (user.loginOtpExpiresAt && user.loginOtpExpiresAt < new Date()) {
+      throw new Error("OTP has expired");
+    }
+
+    if (!verifyOTP(otp, user.loginOtp)) {
+      throw new Error("Invalid OTP");
+    }
+
+    // Clear OTP fields
+    user.loginOtp = null;
+    user.loginOtpExpiresAt = null;
+    await this.userRepo.save(user);
 
     const token = generateJWT({
       id: user.id,

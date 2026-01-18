@@ -173,6 +173,93 @@
           ]
         },
         {
+          "name": "Request Login OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/request-login-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "request-login-otp"
+              ]
+            },
+            "description": "Request an OTP for login. OTP will be sent to the user's email."
+          }
+        },
+        {
+          "name": "Verify Login OTP",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"john.doe@example.com\",\n  \"otp\": \"123456\"\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/verify-login-otp",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "verify-login-otp"
+              ]
+            },
+            "description": "Verify OTP for login. Returns user data and access token if OTP is valid."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-save token to both collection and environment variables",
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.token) {",
+                  "        // Save to collection variable (works without environment)",
+                  "        pm.collectionVariables.set(\"authToken\", jsonData.token);",
+                  "        ",
+                  "        // Save to environment variable (if environment is active)",
+                  "        pm.environment.set(\"authToken\", jsonData.token);",
+                  "        ",
+                  "        console.log(\"Token saved to collection and environment:\", jsonData.token);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
+        },
+        {
           "name": "Admin Login",
           "request": {
             "method": "POST",

@@ -74,6 +74,14 @@ export class User extends BaseEntity {
   isActive: boolean;
 
   @Exclude()
+  @Column({ type: "varchar", select: false, nullable: true })
+  loginOtp: string | null;
+
+  @Exclude()
+  @Column({ type: "timestamp", nullable: true, select: false })
+  loginOtpExpiresAt: Date | null;
+
+  @Exclude()
   @Column({
     type: "varchar",
     nullable: true,

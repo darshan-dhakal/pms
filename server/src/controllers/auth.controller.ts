@@ -92,6 +92,48 @@ export class AuthController {
     }
   }
 
+  static async requestLoginOTP(req: Request, res: Response) {
+    try {
+      const { email, password } = req.body;
+      if (!email || !password) {
+        return res
+          .status(400)
+          .json({ message: "Email and password are required" });
+      }
+      const result = await authService.sendLoginOTP(email);
+      return res.status(200).json(result);
+    } catch (error: any) {
+      if (
+        error.message === "Invalid email or password" ||
+        error.message === "Email not verified"
+      ) {
+        return res.status(400).json({ message: error.message });
+      }
+      console.error("Request login OTP error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
+  static async verifyLoginOTP(req: Request, res: Response) {
+    try {
+      const { email, otp } = req.body;
+      if (!email || !otp) {
+        return res.status(400).json({ message: "Email and OTP are required" });
+      }
+      const result = await authService.verifyLoginOTP(email, otp);
+      return res.status(200).json(result);
+    } catch (error: any) {
+      if (
+        error.message === "Invalid OTP" ||
+        error.message === "OTP has expired"
+      ) {
+        return res.status(400).json({ message: error.message });
+      }
+      console.error("Verify login OTP error:", error);
+      return res.status(500).json({ message: "Internal server error" });
+    }
+  }
+
   static async adminLogin(req: Request, res: Response) {
     try {
       const { email, password } = req.body;
