@@ -13,7 +13,7 @@ interface RequestOptions extends RequestInit {
 
 async function apiCall<T>(
   endpoint: string,
-  options: RequestOptions = {}
+  options: RequestOptions = {},
 ): Promise<ApiResponse<T>> {
   const url = `${API_BASE_URL}${endpoint}`;
   const token =
@@ -64,7 +64,7 @@ export const authApi = {
     firstName: string,
     lastName: string,
     email: string,
-    password: string
+    password: string,
   ) =>
     apiCall("/register", {
       method: "POST",
@@ -81,6 +81,18 @@ export const authApi = {
     apiCall("/resend-verification", {
       method: "POST",
       body: JSON.stringify({ email }),
+    }),
+
+  requestLoginOTP: (email: string, password: string) =>
+    apiCall("/login/request-otp", {
+      method: "POST",
+      body: JSON.stringify({ email, password }),
+    }),
+
+  verifyLoginOTP: (email: string, otp: string) =>
+    apiCall("/login/verify-otp", {
+      method: "POST",
+      body: JSON.stringify({ email, otp }),
     }),
 
   login: (email: string, password: string) =>

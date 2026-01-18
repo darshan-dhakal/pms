@@ -8,8 +8,9 @@ authRoutes.post("/verify-email", AuthController.verifyEmail);
 authRoutes.post("/resend-verification", AuthController.resendVerificationEmail);
 authRoutes.post("/login", AuthController.login);
 
-authRoutes.post("/request-login-otp", AuthController.requestLoginOTP);
-authRoutes.post("/verify-login-otp", AuthController.verifyLoginOTP);
+// OTP Login routes
+authRoutes.post("/login/request-otp", AuthController.requestLoginOTP);
+authRoutes.post("/login/verify-otp", AuthController.verifyLoginOTP);
 
 authRoutes.post("/admin-login", AuthController.adminLogin);
 authRoutes.post("/forgot-password", AuthController.forgotPassword);

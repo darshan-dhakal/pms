@@ -147,11 +147,7 @@ export class AuthService {
     if (!isPasswordValid) {
       throw new Error("Invalid email or password");
     }
-    if (!user.isEmailVerified) {
-      throw new Error("Email not verified");
-    }
-
-    return await this.sendLoginOTP(email);
+    return await this.sendLoginOTP(email, !user.isEmailVerified);
   }
 
   //   const token = generateJWT({
@@ -173,7 +169,7 @@ export class AuthService {
   //   };
   // }
 
-  async sendLoginOTP(email: string) {
+  async sendLoginOTP(email: string, emailNotVerified: boolean = false) {
     const user = await this.userRepo.findOne({
       where: { email },
       select: [
@@ -187,9 +183,6 @@ export class AuthService {
     });
     if (!user) {
       throw new Error("Invalid email or password");
-    }
-    if (!user.isEmailVerified) {
-      throw new Error("Email not verified");
     }
 
     // Generate OTP
@@ -208,7 +201,11 @@ export class AuthService {
       console.error("Error sending OTP email:", error);
       throw new Error("Failed to send OTP email");
     }
-    return { message: "OTP sent to email successfully", expiresAt: 300 };
+    return {
+      message: "OTP sent to email successfully",
+      expiresAt: 300,
+      emailNotVerified: emailNotVerified,
+    };
   }
 
   async verifyLoginOTP(email: string, otp: string) {
@@ -228,10 +225,6 @@ export class AuthService {
     if (!user) {
       throw new Error("Invalid email or OTP");
     }
-    if (!user.isEmailVerified) {
-      throw new Error("Email not verified");
-    }
-
     if (!user.loginOtp) {
       throw new Error("No OTP found. Please request a new one.");
     }
@@ -264,6 +257,7 @@ export class AuthService {
         email: user.email,
         role: user.role,
       },
+      isEmailVerified: user.isEmailVerified,
       message: "Login successful",
     };
   }
