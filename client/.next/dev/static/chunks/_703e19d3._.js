@@ -498,11 +498,50 @@ var _s = __turbopack_context__.k.signature();
 function VerifyEmailPage() {
     _s();
     const router = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"])();
+    const searchParams = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"])();
+    const token = searchParams.get("token");
     const [email, setEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const [error, setError] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
     const [isLoading, setIsLoading] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [emailSent, setEmailSent] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])(false);
     const [sentEmail, setSentEmail] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    const [verificationStatus, setVerificationStatus] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("idle");
+    const [verificationMessage, setVerificationMessage] = (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useState"])("");
+    // Handle email verification from token in URL
+    (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$index$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useEffect"])({
+        "VerifyEmailPage.useEffect": ()=>{
+            if (token) {
+                const verifyEmail = {
+                    "VerifyEmailPage.useEffect.verifyEmail": async ()=>{
+                        setVerificationStatus("verifying");
+                        try {
+                            const response = await __TURBOPACK__imported__module__$5b$project$5d2f$lib$2f$api$2e$ts__$5b$app$2d$client$5d$__$28$ecmascript$29$__["authApi"].verifyEmail(token);
+                            if (!response.success) {
+                                setVerificationStatus("error");
+                                setVerificationMessage(response.message || "Failed to verify email");
+                                return;
+                            }
+                            setVerificationStatus("success");
+                            setVerificationMessage("Your email has been verified successfully!");
+                            // Redirect to login after 3 seconds
+                            setTimeout({
+                                "VerifyEmailPage.useEffect.verifyEmail": ()=>{
+                                    router.push("/login");
+                                }
+                            }["VerifyEmailPage.useEffect.verifyEmail"], 3000);
+                        } catch (error) {
+                            setVerificationStatus("error");
+                            setVerificationMessage(error instanceof Error ? error.message : "An error occurred");
+                        }
+                    }
+                }["VerifyEmailPage.useEffect.verifyEmail"];
+                verifyEmail();
+            }
+        }
+    }["VerifyEmailPage.useEffect"], [
+        token,
+        router
+    ]);
     const handleSubmit = async (e)=>{
         e.preventDefault();
         setError("");
@@ -546,20 +585,20 @@ function VerifyEmailPage() {
                             children: "Verify Your Email"
                         }, void 0, false, {
                             fileName: "[project]/app/verify-email/page.tsx",
-                            lineNumber: 65,
+                            lineNumber: 105,
                             columnNumber: 11
                         }, this),
                         /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardDescription"], {
                             children: "Enter your email address to receive a verification link"
                         }, void 0, false, {
                             fileName: "[project]/app/verify-email/page.tsx",
-                            lineNumber: 66,
+                            lineNumber: 106,
                             columnNumber: 11
                         }, this)
                     ]
                 }, void 0, true, {
                     fileName: "[project]/app/verify-email/page.tsx",
-                    lineNumber: 64,
+                    lineNumber: 104,
                     columnNumber: 9
                 }, this),
                 /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$card$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["CardContent"], {
@@ -571,7 +610,7 @@ function VerifyEmailPage() {
                                 children: error
                             }, void 0, false, {
                                 fileName: "[project]/app/verify-email/page.tsx",
-                                lineNumber: 74,
+                                lineNumber: 114,
                                 columnNumber: 17
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("form", {
@@ -587,7 +626,7 @@ function VerifyEmailPage() {
                                                 children: "Email Address"
                                             }, void 0, false, {
                                                 fileName: "[project]/app/verify-email/page.tsx",
-                                                lineNumber: 81,
+                                                lineNumber: 121,
                                                 columnNumber: 19
                                             }, this),
                                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$input$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Input"], {
@@ -599,13 +638,13 @@ function VerifyEmailPage() {
                                                 disabled: isLoading
                                             }, void 0, false, {
                                                 fileName: "[project]/app/verify-email/page.tsx",
-                                                lineNumber: 84,
+                                                lineNumber: 124,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 80,
+                                        lineNumber: 120,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -615,13 +654,13 @@ function VerifyEmailPage() {
                                         children: isLoading ? "Sending..." : "Send Verification Email"
                                     }, void 0, false, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 94,
+                                        lineNumber: 134,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/verify-email/page.tsx",
-                                lineNumber: 79,
+                                lineNumber: 119,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -633,12 +672,12 @@ function VerifyEmailPage() {
                                             className: "w-full border-t border-muted-foreground/20"
                                         }, void 0, false, {
                                             fileName: "[project]/app/verify-email/page.tsx",
-                                            lineNumber: 101,
+                                            lineNumber: 141,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 100,
+                                        lineNumber: 140,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -648,18 +687,18 @@ function VerifyEmailPage() {
                                             children: "Or"
                                         }, void 0, false, {
                                             fileName: "[project]/app/verify-email/page.tsx",
-                                            lineNumber: 104,
+                                            lineNumber: 144,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 103,
+                                        lineNumber: 143,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/verify-email/page.tsx",
-                                lineNumber: 99,
+                                lineNumber: 139,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -671,12 +710,12 @@ function VerifyEmailPage() {
                                     children: "Back to Login"
                                 }, void 0, false, {
                                     fileName: "[project]/app/verify-email/page.tsx",
-                                    lineNumber: 109,
+                                    lineNumber: 149,
                                     columnNumber: 17
                                 }, this)
                             }, void 0, false, {
                                 fileName: "[project]/app/verify-email/page.tsx",
-                                lineNumber: 108,
+                                lineNumber: 148,
                                 columnNumber: 15
                             }, this)
                         ]
@@ -690,7 +729,7 @@ function VerifyEmailPage() {
                                         children: "✓ Email Sent Successfully"
                                     }, void 0, false, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 115,
+                                        lineNumber: 155,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -702,19 +741,19 @@ function VerifyEmailPage() {
                                                 children: sentEmail
                                             }, void 0, false, {
                                                 fileName: "[project]/app/verify-email/page.tsx",
-                                                lineNumber: 120,
+                                                lineNumber: 160,
                                                 columnNumber: 19
                                             }, this)
                                         ]
                                     }, void 0, true, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 118,
+                                        lineNumber: 158,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/verify-email/page.tsx",
-                                lineNumber: 114,
+                                lineNumber: 154,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -724,20 +763,20 @@ function VerifyEmailPage() {
                                         children: "Please check your email and click the verification link to verify your account."
                                     }, void 0, false, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 125,
+                                        lineNumber: 165,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
                                         children: "If you don't see the email, please check your spam folder."
                                     }, void 0, false, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 129,
+                                        lineNumber: 169,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/verify-email/page.tsx",
-                                lineNumber: 124,
+                                lineNumber: 164,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("div", {
@@ -753,7 +792,7 @@ function VerifyEmailPage() {
                                         children: "Send to Different Email"
                                     }, void 0, false, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 135,
+                                        lineNumber: 175,
                                         columnNumber: 17
                                     }, this),
                                     /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])(__TURBOPACK__imported__module__$5b$project$5d2f$components$2f$ui$2f$button$2e$tsx__$5b$app$2d$client$5d$__$28$ecmascript$29$__["Button"], {
@@ -765,18 +804,18 @@ function VerifyEmailPage() {
                                             children: "Back to Login"
                                         }, void 0, false, {
                                             fileName: "[project]/app/verify-email/page.tsx",
-                                            lineNumber: 147,
+                                            lineNumber: 187,
                                             columnNumber: 19
                                         }, this)
                                     }, void 0, false, {
                                         fileName: "[project]/app/verify-email/page.tsx",
-                                        lineNumber: 146,
+                                        lineNumber: 186,
                                         columnNumber: 17
                                     }, this)
                                 ]
                             }, void 0, true, {
                                 fileName: "[project]/app/verify-email/page.tsx",
-                                lineNumber: 134,
+                                lineNumber: 174,
                                 columnNumber: 15
                             }, this),
                             /*#__PURE__*/ (0, __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$dist$2f$compiled$2f$react$2f$jsx$2d$dev$2d$runtime$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["jsxDEV"])("p", {
@@ -784,31 +823,32 @@ function VerifyEmailPage() {
                                 children: "Verification link expires in 24 hours"
                             }, void 0, false, {
                                 fileName: "[project]/app/verify-email/page.tsx",
-                                lineNumber: 151,
+                                lineNumber: 191,
                                 columnNumber: 15
                             }, this)
                         ]
                     }, void 0, true)
                 }, void 0, false, {
                     fileName: "[project]/app/verify-email/page.tsx",
-                    lineNumber: 70,
+                    lineNumber: 110,
                     columnNumber: 9
                 }, this)
             ]
         }, void 0, true, {
             fileName: "[project]/app/verify-email/page.tsx",
-            lineNumber: 63,
+            lineNumber: 103,
             columnNumber: 7
         }, this)
     }, void 0, false, {
         fileName: "[project]/app/verify-email/page.tsx",
-        lineNumber: 62,
+        lineNumber: 102,
         columnNumber: 5
     }, this);
 }
-_s(VerifyEmailPage, "Vl3PTwZvUtNrT0YAC7PbxNKI6nw=", false, function() {
+_s(VerifyEmailPage, "zO5MG/zHTk7qsSMD134k8ZpgQio=", false, function() {
     return [
-        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"]
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useRouter"],
+        __TURBOPACK__imported__module__$5b$project$5d2f$node_modules$2f$next$2f$navigation$2e$js__$5b$app$2d$client$5d$__$28$ecmascript$29$__["useSearchParams"]
     ];
 });
 _c = VerifyEmailPage;

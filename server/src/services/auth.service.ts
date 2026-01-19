@@ -7,6 +7,7 @@ import jwt from "jsonwebtoken";
 import type { Secret } from "jsonwebtoken";
 import { generateJWT } from "../utils/jwt";
 import { generateOTP, hashOTP, verifyOTP, sendOTPEmail } from "../utils/otp";
+import { sendVerificationEmail } from "../utils/verify-email";
 
 const JWT_SECRET: Secret = process.env.JWT_SECRET || "your_jwt_secret";
 const JWT_EXPIRES_IN = process.env.JWT_EXPIRES_IN || "1h";
@@ -47,6 +48,11 @@ export class AuthService {
 
     // TODO: Send email with verification link
     // Example: sendEmail(user.email, `http://localhost:3000/api/verify-email?token=${emailVerificationToken}`)
+
+    await sendVerificationEmail(
+      user.email,
+      `http://localhost:3000/api/verify-email?token=${emailVerificationToken}`,
+    );
 
     return {
       id: user.id,
@@ -113,12 +119,10 @@ export class AuthService {
     ); // 24 hours from now
 
     // Update user with new token
-    user.emailVerificationToken = hashedEmailToken;
-    user.emailVerificationTokenExpiresAt = emailVerificationExpiresAt;
-    await this.userRepo.save(user);
-
-    // TODO: Send email with verification link
-    // Example: sendEmail(user.email, `http://localhost:3000/api/verify-email?token=${emailVerificationToken}`)
+    await sendVerificationEmail(
+      user.email,
+      `http://localhost:3000/verify-email?token=${emailVerificationToken}`,
+    );
 
     return {
       message: "Verification email sent successfully",

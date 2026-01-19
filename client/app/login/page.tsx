@@ -30,6 +30,7 @@ export default function LoginPage() {
   const [timeLeft, setTimeLeft] = useState(0);
   const [emailNotVerified, setEmailNotVerified] = useState(false);
   const [showVerificationLink, setShowVerificationLink] = useState(false);
+  const [isAdminLogin, setIsAdminLogin] = useState(false);
 
   const handleCredentialsSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -49,6 +50,32 @@ export default function LoginPage() {
     }
 
     try {
+      // Admin login - direct credential verification
+      if (isAdminLogin) {
+        const response = await authApi.adminLogin(email, password);
+
+        if (!response.success) {
+          setError(response.message || "Invalid credentials or not an admin");
+          setIsLoading(false);
+          return;
+        }
+
+        const data = response.data as any;
+        const token = data.token || data.accessToken;
+        const user = {
+          id: data.user?.id || data.id,
+          email: data.user?.email || data.email,
+          firstName: data.user?.firstName || "",
+          lastName: data.user?.lastName || "",
+          role: data.user?.role || data.role,
+        };
+
+        login(user, token);
+        router.push("/dashboard");
+        return;
+      }
+
+      // Regular user login - OTP required
       const response = await authApi.requestLoginOTP(email, password);
 
       if (!response.success) {
@@ -154,6 +181,17 @@ export default function LoginPage() {
     setShowVerificationLink(false);
   };
 
+  const toggleLoginMode = () => {
+    setIsAdminLogin(!isAdminLogin);
+    setEmail("");
+    setPassword("");
+    setError("");
+    setOtp("");
+    setOtpError("");
+    setStep(1);
+    setTimeLeft(0);
+  };
+
   useEffect(() => {
     if (timeLeft <= 0) return;
     const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -170,47 +208,79 @@ export default function LoginPage() {
           <CardDescription>
             {step === 2
               ? `Enter the 6-digit code sent to ${email}`
-              : "Sign in to your ProjectHub account"}
+              : isAdminLogin
+                ? "Sign in to your admin account"
+                : "Sign in to your ProjectHub account"}
           </CardDescription>
         </CardHeader>
         <CardContent>
           {step === 1 ? (
-            <form onSubmit={handleCredentialsSubmit} className="space-y-4">
-              {error && (
-                <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
-                  {error}
+            <div className="space-y-4">
+              {/* Login Mode Toggle */}
+              <div className="flex gap-2 mb-4">
+                <Button
+                  type="button"
+                  variant={isAdminLogin ? "outline" : "default"}
+                  className="flex-1"
+                  onClick={() => !isAdminLogin || toggleLoginMode()}
+                  disabled={isLoading}
+                >
+                  User Login
+                </Button>
+                <Button
+                  type="button"
+                  variant={isAdminLogin ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => isAdminLogin || toggleLoginMode()}
+                  disabled={isLoading}
+                >
+                  Admin Login
+                </Button>
+              </div>
+
+              <form onSubmit={handleCredentialsSubmit} className="space-y-4">
+                {error && (
+                  <div className="p-3 bg-destructive/10 border border-destructive/20 rounded-lg text-destructive text-sm">
+                    {error}
+                  </div>
+                )}
+                <div className="space-y-2">
+                  <label htmlFor="email" className="text-sm font-medium">
+                    Email
+                  </label>
+                  <Input
+                    id="email"
+                    type="email"
+                    placeholder="you@example.com"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    disabled={isLoading}
+                  />
                 </div>
-              )}
-              <div className="space-y-2">
-                <label htmlFor="email" className="text-sm font-medium">
-                  Email
-                </label>
-                <Input
-                  id="email"
-                  type="email"
-                  placeholder="you@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="space-y-2">
-                <label htmlFor="password" className="text-sm font-medium">
-                  Password
-                </label>
-                <Input
-                  id="password"
-                  type="password"
-                  placeholder="••••••••"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  disabled={isLoading}
-                />
-              </div>
-              <Button type="submit" className="w-full" disabled={isLoading}>
-                {isLoading ? "Sending OTP..." : "Continue"}
-              </Button>
-            </form>
+                <div className="space-y-2">
+                  <label htmlFor="password" className="text-sm font-medium">
+                    Password
+                  </label>
+                  <Input
+                    id="password"
+                    type="password"
+                    placeholder="••••••••"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    disabled={isLoading}
+                  />
+                </div>
+                <Button type="submit" className="w-full" disabled={isLoading}>
+                  {isLoading
+                    ? isAdminLogin
+                      ? "Signing in..."
+                      : "Sending OTP..."
+                    : isAdminLogin
+                      ? "Sign In"
+                      : "Continue"}
+                </Button>
+              </form>
+            </div>
           ) : (
             <form onSubmit={handleOTPSubmit} className="space-y-4">
               {otpError && (
@@ -326,7 +396,7 @@ export default function LoginPage() {
               )}
             </form>
           )}
-          {step === 1 && (
+          {step === 1 && !isAdminLogin && (
             <p className="text-sm text-muted-foreground text-center mt-4">
               Don't have an account?{" "}
               <Link href="/register" className="text-primary hover:underline">
