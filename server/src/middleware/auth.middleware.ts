@@ -8,7 +8,7 @@ import { UserRole } from "../constant/enums";
 export const authenticate = (
   req: Request,
   res: Response,
-  next: NextFunction
+  next: NextFunction,
 ) => {
   try {
     // Get token from Authorization header
@@ -51,6 +51,20 @@ export const authenticate = (
   }
 };
 
+//give access of read only if the email is not verified
+export const checkEmailVerified = (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  if (req.user && !req.user.isEmailVerified) {
+    return res.status(403).json({
+      message: "Email not verified. Limited access.",
+    });
+  }
+  next();
+};
+
 /**
  * Authorization middleware - Checks user roles
  * @param allowedRoles - Array of roles that are allowed to access the route
@@ -84,7 +98,7 @@ export const adminOnly = authorize(UserRole.SUPER_ADMIN, UserRole.ADMIN);
 export const managerAndAbove = authorize(
   UserRole.SUPER_ADMIN,
   UserRole.ADMIN,
-  UserRole.PROJECT_MANAGER
+  UserRole.PROJECT_MANAGER,
 );
 /**
  * Team management middleware - SUPER_ADMIN, ADMIN, PROJECT_MANAGER only
@@ -92,7 +106,7 @@ export const managerAndAbove = authorize(
 export const teamManagement = authorize(
   UserRole.SUPER_ADMIN,
   UserRole.ADMIN,
-  UserRole.PROJECT_MANAGER
+  UserRole.PROJECT_MANAGER,
 );
 
 /**
@@ -102,5 +116,5 @@ export const taskAssignment = authorize(
   UserRole.SUPER_ADMIN,
   UserRole.ADMIN,
   UserRole.PROJECT_MANAGER,
-  UserRole.TEAM_LEAD
+  UserRole.TEAM_LEAD,
 );
