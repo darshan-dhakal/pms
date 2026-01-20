@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,6 +16,8 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { projectApi, CreateProjectData } from "@/lib/api/project";
 import { useToast } from "@/hooks/use-toast";
+import { ComboBox, ComboBoxOption } from "../ui/combo-box";
+import { teamApi } from "@/lib/api/team";
 
 interface CreateProjectDialogProps {
   onProjectCreated: () => void;
@@ -26,11 +28,40 @@ export function CreateProjectDialog({
 }: CreateProjectDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [teamOptions, setTeamOptions] = useState<ComboBoxOption[]>([]);
   const { toast } = useToast();
   const [formData, setFormData] = useState<CreateProjectData>({
     name: "",
+    teamId: "",
     description: "",
   });
+
+  //fetch teams when dialog opens
+  useEffect(() => {
+    if (open) {
+      fetchTeams();
+    }
+  }, [open]);
+
+  const fetchTeams = async () => {
+    setLoading(true);
+    try {
+      const teams = await teamApi.getAllTeams();
+      const teamOptions: ComboBoxOption[] = teams.map((team) => ({
+        value: team.id,
+        label: team.name,
+      }));
+      setTeamOptions(teamOptions);
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Failed to load teams",
+        variant: "destructive",
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,6 +76,7 @@ export function CreateProjectDialog({
       setOpen(false);
       setFormData({
         name: "",
+        teamId: "",
         description: "",
       });
       onProjectCreated();
@@ -65,7 +97,7 @@ export function CreateProjectDialog({
       <DialogTrigger asChild>
         <Button>+ New Project</Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[500px]">
+      <DialogContent className="sm:max-w-125">
         <form onSubmit={handleSubmit}>
           <DialogHeader>
             <DialogTitle>Create New Project</DialogTitle>
@@ -97,6 +129,17 @@ export function CreateProjectDialog({
                 }
                 required
                 rows={3}
+              />
+            </div>
+            <div className="grid gap-2">
+              <Label htmlFor="team">Select Team *</Label>
+              <ComboBox
+                options={teamOptions}
+                value={formData.teamId}
+                onChange={(value) =>
+                  setFormData({ ...formData, teamId: value })
+                }
+                placeholder="Select a team"
               />
             </div>
           </div>

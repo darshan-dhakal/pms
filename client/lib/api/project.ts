@@ -14,6 +14,7 @@ export interface Project {
 
 export interface CreateProjectData {
   name: string;
+  teamId: string;
   description: string;
 }
 
