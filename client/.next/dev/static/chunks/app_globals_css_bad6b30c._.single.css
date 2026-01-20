@@ -96,6 +96,7 @@
     --color-purple-100: #f3e8ff;
     --color-purple-700: #8200da;
     --color-gray-100: #f3f4f6;
+    --color-gray-500: #6a7282;
     --color-gray-700: #364153;
     --color-gray-800: #1e2939;
     --color-black: #000;
@@ -171,6 +172,7 @@
       --color-purple-100: lab(93.3333% 6.97437 -9.83434);
       --color-purple-700: lab(36.1758% 69.8525 -80.0381);
       --color-gray-100: lab(96.1596% -.0823438 -1.13575);
+      --color-gray-500: lab(47.7841% -.393182 -10.0268);
       --color-gray-700: lab(27.1134% -.956401 -12.3224);
       --color-gray-800: lab(16.1051% -1.18239 -11.7533);
     }
@@ -1289,6 +1291,10 @@
     cursor: move;
   }
 
+  .cursor-pointer {
+    cursor: pointer;
+  }
+
   .cursor-text {
     cursor: text;
   }
@@ -1991,6 +1997,10 @@
     padding-block: calc(var(--spacing) * 6);
   }
 
+  .py-8 {
+    padding-block: calc(var(--spacing) * 8);
+  }
+
   .pt-0 {
     padding-top: calc(var(--spacing) * 0);
   }
@@ -2057,6 +2067,10 @@
 
   .text-left {
     text-align: left;
+  }
+
+  .text-right {
+    text-align: right;
   }
 
   .align-middle {
@@ -2231,6 +2245,10 @@
     .text-foreground\/50 {
       color: color-mix(in oklab, var(--foreground) 50%, transparent);
     }
+  }
+
+  .text-gray-500 {
+    color: var(--color-gray-500);
   }
 
   .text-gray-700 {

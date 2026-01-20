@@ -1,10 +1,11 @@
 import api from "../axios-config";
 
 export interface Project {
-  id: number;
+  id: string;
   name: string;
   description: string;
   status?: "PLANNING" | "IN_PROGRESS" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
+  teamId: string;
   // startDate?: string;
   // endDate?: string;
   createdAt: string;
@@ -28,7 +29,7 @@ export const projectApi = {
   },
 
   // Get single project
-  getProject: async (id: number) => {
+  getProject: async (id: string) => {
     const response = await api.get<Project>(`/projects/${id}`);
     return response.data;
   },
@@ -46,7 +47,7 @@ export const projectApi = {
   },
 
   // Delete project
-  deleteProject: async (id: number) => {
+  deleteProject: async (id: string) => {
     const response = await api.delete(`/projects/${id}`);
     return response.data;
   },
