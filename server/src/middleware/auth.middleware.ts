@@ -57,12 +57,27 @@ export const checkEmailVerified = (
   res: Response,
   next: NextFunction,
 ) => {
-  if (req.user && !req.user.isEmailVerified) {
+  if (!req.user) {
+    return res.status(401).json({ message: "Authentication required" });
+  }
+
+  const { role, isEmailVerified } = req.user as {
+    role?: UserRole;
+    isEmailVerified?: boolean;
+  };
+
+  // Admins and super admins bypass email verification
+  if (role === UserRole.ADMIN || role === UserRole.SUPER_ADMIN) {
+    return next();
+  }
+
+  if (isEmailVerified === false) {
     return res.status(403).json({
       message: "Email not verified. Limited access.",
     });
   }
-  next();
+
+  return next();
 };
 
 /**
