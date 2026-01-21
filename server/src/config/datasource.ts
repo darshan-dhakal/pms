@@ -6,7 +6,6 @@ import { Team } from "../entities/team.entity";
 import { TeamMember } from "../entities/team-member.entity";
 import { Project } from "../entities/project.entity";
 import { Task } from "../entities/task.entity";
-import { ProjectMember } from "../entities/project-member.entity";
 
 export const AppDataSource = new DataSource({
   type: "postgres",
@@ -14,7 +13,7 @@ export const AppDataSource = new DataSource({
   synchronize: false, // ALWAYS false in production
   logging: false,
 
-  entities: [User, Team, TeamMember, Project, Task, ProjectMember],
+  entities: [User, Team, TeamMember, Project, Task],
 
   migrations: ["src/database/migrations/*.ts"],
 });

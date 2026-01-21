@@ -618,7 +618,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Mobile App Development\",\n  \"description\": \"Building a cross-platform mobile application\",\n  \"startDate\": \"2026-02-01\",\n  \"endDate\": \"2026-06-30\"\n}",
+              "raw": "{\n  \"name\": \"Mobile App Project\",\n  \"description\": \"Building a cross-platform mobile application\",\n  \"teamId\": \"team-id-here\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -635,11 +635,11 @@
                 "projects"
               ]
             },
-            "description": "Create a new project. User becomes the project owner. Project starts in DRAFT status."
+            "description": "Create a new project. Requires authentication."
           }
         },
         {
-          "name": "Get Organization Projects",
+          "name": "Get All Projects",
           "request": {
             "method": "GET",
             "header": [
@@ -659,7 +659,7 @@
                 "projects"
               ]
             },
-            "description": "Get all projects for current user (excludes archived projects)."
+            "description": "Get all projects. Requires authentication."
           }
         },
         {
@@ -690,7 +690,39 @@
                 }
               ]
             },
-            "description": "Get project details with members and tasks. User must be a project member."
+            "description": "Get project by ID. Requires authentication."
+          }
+        },
+        {
+          "name": "Get Projects by Team",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "type": "text"
+              }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/team/:teamId",
+              "host": [
+                "{{baseUrl}}"
+              ],
+              "path": [
+                "api",
+                "projects",
+                "team",
+                ":teamId"
+              ],
+              "variable": [
+                {
+                  "key": "teamId",
+                  "value": "team-id-here"
+                }
+              ]
+            },
+            "description": "Get all projects for a specific team. Requires authentication."
           }
         },
         {
@@ -710,7 +742,7 @@
             ],
             "body": {
               "mode": "raw",
-              "raw": "{\n  \"name\": \"Updated Project Name\",\n  \"description\": \"Updated description\",\n  \"startDate\": \"2026-02-15\",\n  \"endDate\": \"2026-07-31\"\n}",
+              "raw": "{\n  \"name\": \"Updated Project Name\",\n  \"description\": \"Updated description\"\n}",
               "options": {
                 "raw": {
                   "language": "json"
@@ -734,101 +766,11 @@
                 }
               ]
             },
-            "description": "Update project details. Requires OWNER, MANAGER, or MEMBER role. Cannot update archived projects."
+            "description": "Update project details. Requires authentication."
           }
         },
         {
-          "name": "Change Project Status",
-          "request": {
-            "method": "PATCH",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"status\": \"ACTIVE\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/projects/:id/status",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "projects",
-                ":id",
-                "status"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "project-id-here"
-                }
-              ]
-            },
-            "description": "Change project status. Allowed transitions:\nDRAFT → PLANNED, ARCHIVED\nPLANNED → ACTIVE, DRAFT, ARCHIVED\nACTIVE → ON_HOLD, COMPLETED, ARCHIVED\nON_HOLD → ACTIVE, ARCHIVED\nCOMPLETED → ARCHIVED\n\nStatuses: DRAFT, PLANNED, ACTIVE, ON_HOLD, COMPLETED, ARCHIVED"
-          }
-        },
-        {
-          "name": "Add Project Member",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}",
-                "type": "text"
-              },
-              {
-                "key": "Content-Type",
-                "value": "application/json"
-              }
-            ],
-            "body": {
-              "mode": "raw",
-              "raw": "{\n  \"userId\": \"user-id-to-add\",\n  \"role\": \"MEMBER\"\n}",
-              "options": {
-                "raw": {
-                  "language": "json"
-                }
-              }
-            },
-            "url": {
-              "raw": "{{baseUrl}}/api/projects/:id/members",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "projects",
-                ":id",
-                "members"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "project-id-here"
-                }
-              ]
-            },
-            "description": "Add member to project. Requires OWNER or MANAGER role.\nRoles: OWNER, MANAGER, MEMBER, VIEWER"
-          }
-        },
-        {
-          "name": "Remove Project Member",
+          "name": "Delete Project",
           "request": {
             "method": "DELETE",
             "header": [
@@ -839,52 +781,14 @@
               }
             ],
             "url": {
-              "raw": "{{baseUrl}}/api/projects/:id/members/:userId",
+              "raw": "{{baseUrl}}/api/projects/:id",
               "host": [
                 "{{baseUrl}}"
               ],
               "path": [
                 "api",
                 "projects",
-                ":id",
-                "members",
-                ":userId"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "project-id-here"
-                },
-                {
-                  "key": "userId",
-                  "value": "user-id-to-remove"
-                }
-              ]
-            },
-            "description": "Remove member from project. Requires OWNER role. Cannot remove the project owner."
-          }
-        },
-        {
-          "name": "Archive Project",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/projects/:id/archive",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "projects",
-                ":id",
-                "archive"
+                ":id"
               ],
               "variable": [
                 {
@@ -893,39 +797,7 @@
                 }
               ]
             },
-            "description": "Archive project (soft delete). Requires OWNER role. Archived projects become read-only."
-          }
-        },
-        {
-          "name": "Update Project Progress",
-          "request": {
-            "method": "POST",
-            "header": [
-              {
-                "key": "Authorization",
-                "value": "Bearer {{authToken}}",
-                "type": "text"
-              }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/projects/:id/progress",
-              "host": [
-                "{{baseUrl}}"
-              ],
-              "path": [
-                "api",
-                "projects",
-                ":id",
-                "progress"
-              ],
-              "variable": [
-                {
-                  "key": "id",
-                  "value": "project-id-here"
-                }
-              ]
-            },
-            "description": "Manually trigger project progress recalculation based on completed tasks."
+            "description": "Delete a project. Requires authentication."
           }
         }
       ]
