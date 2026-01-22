@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import {
   Dialog,
@@ -16,8 +16,6 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { projectApi, CreateProjectData } from "@/lib/api/project";
 import { useToast } from "@/hooks/use-toast";
-import { ComboBox, ComboBoxOption } from "../ui/combo-box";
-import { teamApi } from "@/lib/api/team";
 
 interface CreateProjectDialogProps {
   onProjectCreated: () => void;
@@ -28,40 +26,13 @@ export function CreateProjectDialog({
 }: CreateProjectDialogProps) {
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [teamOptions, setTeamOptions] = useState<ComboBoxOption[]>([]);
   const { toast } = useToast();
   const [formData, setFormData] = useState<CreateProjectData>({
     name: "",
-    teamId: "",
     description: "",
+    startDate: "",
+    endDate: "",
   });
-
-  //fetch teams when dialog opens
-  useEffect(() => {
-    if (open) {
-      fetchTeams();
-    }
-  }, [open]);
-
-  const fetchTeams = async () => {
-    setLoading(true);
-    try {
-      const teams = await teamApi.getAllTeams();
-      const teamOptions: ComboBoxOption[] = teams.map((team) => ({
-        value: team.id,
-        label: team.name,
-      }));
-      setTeamOptions(teamOptions);
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Failed to load teams",
-        variant: "destructive",
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -76,8 +47,9 @@ export function CreateProjectDialog({
       setOpen(false);
       setFormData({
         name: "",
-        teamId: "",
         description: "",
+        startDate: "",
+        endDate: "",
       });
       onProjectCreated();
     } catch (error: any) {
@@ -119,28 +91,40 @@ export function CreateProjectDialog({
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
-                placeholder="Enter project description"
-                value={formData.description}
+                placeholder="Enter project description (optional)"
+                value={formData.description || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                required
                 rows={3}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="team">Select Team *</Label>
-              <ComboBox
-                options={teamOptions}
-                value={formData.teamId}
-                onChange={(value) =>
-                  setFormData({ ...formData, teamId: value })
-                }
-                placeholder="Select a team"
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={formData.startDate || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startDate: e.target.value })
+                  }
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="endDate">End Date</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={formData.endDate || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, endDate: e.target.value })
+                  }
+                />
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -151,7 +135,7 @@ export function CreateProjectDialog({
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading}>
+            <Button type="submit" disabled={loading || !formData.name}>
               {loading ? "Creating..." : "Create Project"}
             </Button>
           </DialogFooter>

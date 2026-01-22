@@ -1,5 +1,5 @@
 import { Repository } from "typeorm";
-import { AppDataSource } from "../../typeorm.config";
+import { AppDataSource } from "../config/datasource";
 import { Project } from "../entities/project.entity";
 import { ProjectMember } from "../entities/project-member.entity";
 // import {ProjectStatus} from "../constant/enums";
