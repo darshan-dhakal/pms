@@ -10,6 +10,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -37,6 +38,8 @@ import {
   Trash2,
   Archive,
   RefreshCw,
+  Search,
+  X,
 } from "lucide-react";
 
 interface ProjectsListProps {
@@ -67,6 +70,7 @@ export function ProjectsList({ refreshTrigger = 0 }: ProjectsListProps) {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const [statusFilter, setStatusFilter] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [editingProjectId, setEditingProjectId] = useState<string | null>(null);
   const [editDialogOpen, setEditDialogOpen] = useState(false);
   const { toast } = useToast();
@@ -177,6 +181,10 @@ export function ProjectsList({ refreshTrigger = 0 }: ProjectsListProps) {
     return colors[status] || "bg-gray-100 text-gray-800";
   };
 
+  const clearSearch = () => {
+    setSearchQuery("");
+  };
+
   if (loading) {
     return <div className="text-center py-8">Loading projects...</div>;
   }
@@ -189,34 +197,76 @@ export function ProjectsList({ refreshTrigger = 0 }: ProjectsListProps) {
     );
   }
 
-  const filteredProjects = projects.filter((project) =>
-    statusFilter === "ALL" ? true : project.status === statusFilter,
-  );
+  // Filter projects by status and search query
+  const filteredProjects = projects.filter((project) => {
+    // Status filter
+    const matchesStatus =
+      statusFilter === "ALL" ? true : project.status === statusFilter;
+
+    // Search filter (searches in name and description)
+    const matchesSearch =
+      searchQuery.trim() === "" ||
+      project.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (project.description &&
+        project.description.toLowerCase().includes(searchQuery.toLowerCase()));
+
+    return matchesStatus && matchesSearch;
+  });
 
   return (
     <>
-      <div className="flex items-center justify-between mb-4">
-        <div className="text-sm text-muted-foreground">
-          {filteredProjects.length} of {projects.length} projects
+      {/* Search and Filter Controls */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-4">
+        {/* Search Input */}
+        <div className="relative flex-1 max-w-sm">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+          <Input
+            type="text"
+            placeholder="Search projects..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="pl-9 pr-9"
+          />
+          {searchQuery && (
+            <button
+              onClick={clearSearch}
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground"
+            >
+              <X className="h-4 w-4" />
+            </button>
+          )}
         </div>
-        <div className="flex items-center gap-2">
-          <span className="text-sm text-muted-foreground">Status:</span>
-          <Select value={statusFilter} onValueChange={setStatusFilter}>
-            <SelectTrigger className="w-36">
-              <SelectValue placeholder="Filter by status" />
-            </SelectTrigger>
-            <SelectContent>
-              {STATUS_OPTIONS.map((status) => (
-                <SelectItem key={status} value={status}>
-                  {status === "ALL" ? "All" : status}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
+
+        {/* Status Filter and Count */}
+        <div className="flex items-center gap-4">
+          <div className="text-sm text-muted-foreground">
+            {filteredProjects.length} of {projects.length} projects
+          </div>
+          <div className="flex items-center gap-2">
+            <span className="text-sm text-muted-foreground">Status:</span>
+            <Select value={statusFilter} onValueChange={setStatusFilter}>
+              <SelectTrigger className="w-36">
+                <SelectValue placeholder="Filter by status" />
+              </SelectTrigger>
+              <SelectContent>
+                {STATUS_OPTIONS.map((status) => (
+                  <SelectItem key={status} value={status}>
+                    {status === "ALL" ? "All" : status}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      <div className="rounded-lg border overflow-hidden">
+      {/* Projects Table */}
+      {filteredProjects.length === 0 ? (
+        <div className="text-center py-8 text-gray-500 border rounded-lg">
+          No projects match your search criteria
+        </div>
+      ) : (
+        <div className="rounded-lg border overflow-hidden">
         <Table>
           <TableHeader>
             <TableRow>
@@ -335,7 +385,8 @@ export function ProjectsList({ refreshTrigger = 0 }: ProjectsListProps) {
             ))}
           </TableBody>
         </Table>
-      </div>
+        </div>
+      )}
 
       {editingProjectId && (
         <EditProjectDialog
