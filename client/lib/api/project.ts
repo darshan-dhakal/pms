@@ -3,24 +3,45 @@ import api from "../axios-config";
 export interface Project {
   id: string;
   name: string;
-  description: string;
-  status?: "PLANNING" | "IN_PROGRESS" | "ON_HOLD" | "COMPLETED" | "CANCELLED";
-  teamId: string;
-  // startDate?: string;
-  // endDate?: string;
+  description?: string;
+  status: "DRAFT" | "PLANNED" | "ACTIVE" | "ON_HOLD" | "COMPLETED" | "ARCHIVED";
+  ownerId: string;
+  organizationId: string;
+  startDate?: string;
+  endDate?: string;
+  progress: number;
+  totalTasks: number;
+  completedTasks: number;
+  isArchived: boolean;
   createdAt: string;
   updatedAt: string;
-  members?: number;
+  members?: any[];
+  tasks?: any[];
 }
 
 export interface CreateProjectData {
   name: string;
-  teamId: string;
-  description: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface UpdateProjectData {
+  name?: string;
+  description?: string;
+  startDate?: string;
+  endDate?: string;
+}
+
+export interface ProjectMember {
+  id: string;
+  userId: string;
+  role: "OWNER" | "MANAGER" | "MEMBER" | "VIEWER";
+  joinedAt: string;
 }
 
 export const projectApi = {
-  // Get all projects
+  // Get all projects for user
   getAllProjects: async () => {
     const response = await api.get<{ projects: Project[]; total: number }>(
       "/projects",
@@ -30,19 +51,61 @@ export const projectApi = {
 
   // Get single project
   getProject: async (id: string) => {
-    const response = await api.get<Project>(`/projects/${id}`);
-    return response.data;
+    const response = await api.get<{ project: Project }>(`/projects/${id}`);
+    return response.data.project;
   },
 
   // Create new project
   createProject: async (data: CreateProjectData) => {
-    const response = await api.post<Project>("/projects", data);
-    return response.data;
+    const response = await api.post<{ message: string; project: Project }>(
+      "/projects",
+      data,
+    );
+    return response.data.project;
   },
 
   // Update project
-  updateProject: async (id: number, data: Partial<CreateProjectData>) => {
-    const response = await api.put<Project>(`/projects/${id}`, data);
+  updateProject: async (id: string, data: UpdateProjectData) => {
+    const response = await api.patch<{ message: string; project: Project }>(
+      `/projects/${id}`,
+      data,
+    );
+    return response.data.project;
+  },
+
+  // Change project status
+  changeProjectStatus: async (id: string, status: Project["status"]) => {
+    const response = await api.patch<{ message: string; project: Project }>(
+      `/projects/${id}/status`,
+      { status },
+    );
+    return response.data.project;
+  },
+
+  // Add member to project
+  addMember: async (
+    projectId: string,
+    userId: string,
+    role: ProjectMember["role"],
+  ) => {
+    const response = await api.post(`/projects/${projectId}/members`, {
+      userId,
+      role,
+    });
+    return response.data;
+  },
+
+  // Remove member from project
+  removeMember: async (projectId: string, userId: string) => {
+    const response = await api.delete(
+      `/projects/${projectId}/members/${userId}`,
+    );
+    return response.data;
+  },
+
+  // Archive project
+  archiveProject: async (id: string) => {
+    const response = await api.post(`/projects/${id}/archive`);
     return response.data;
   },
 

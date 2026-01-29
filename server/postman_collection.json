@@ -1,8 +1,8 @@
 {
   "info": {
     "_postman_id": "pms-auth-collection",
-    "name": "Project Management System - Auth API",
-    "description": "API collection for testing authentication endpoints",
+    "name": "Project Management System API",
+    "description": "Complete API collection for Project Management System - Auth, Projects, Tasks, Teams",
     "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
   },
   "variable": [
@@ -13,6 +13,16 @@
     },
     {
       "key": "authToken",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "projectId",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "userId",
       "value": "",
       "type": "string"
     }
@@ -635,11 +645,30 @@
                 "projects"
               ]
             },
-            "description": "Create a new project. User becomes the project owner. Project starts in DRAFT status."
-          }
+            "description": "Create a new project. User becomes the project owner. Project starts in DRAFT status. organizationId is optional and defaults to 'default-org'."
+          },
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "// Auto-save project ID for subsequent requests",
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    if (jsonData.project && jsonData.project.id) {",
+                  "        pm.collectionVariables.set(\"projectId\", jsonData.project.id);",
+                  "        pm.environment.set(\"projectId\", jsonData.project.id);",
+                  "        console.log(\"Project ID saved:\", jsonData.project.id);",
+                  "    }",
+                  "}"
+                ],
+                "type": "text/javascript"
+              }
+            }
+          ]
         },
         {
-          "name": "Get Organization Projects",
+          "name": "Get All Projects",
           "request": {
             "method": "GET",
             "header": [
@@ -659,7 +688,7 @@
                 "projects"
               ]
             },
-            "description": "Get all projects for current user (excludes archived projects)."
+            "description": "Get all projects accessible to the current user (excludes archived projects)."
           }
         },
         {
@@ -686,7 +715,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "project-id-here"
+                  "value": "{{projectId}}"
                 }
               ]
             },
@@ -730,7 +759,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "project-id-here"
+                  "value": "{{projectId}}"
                 }
               ]
             },
@@ -775,7 +804,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "project-id-here"
+                  "value": "{{projectId}}"
                 }
               ]
             },
@@ -820,7 +849,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "project-id-here"
+                  "value": "{{projectId}}"
                 }
               ]
             },
@@ -853,11 +882,11 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "project-id-here"
+                  "value": "{{projectId}}"
                 },
                 {
                   "key": "userId",
-                  "value": "user-id-to-remove"
+                  "value": "{{userId}}"
                 }
               ]
             },
@@ -889,7 +918,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "project-id-here"
+                  "value": "{{projectId}}"
                 }
               ]
             },
@@ -921,7 +950,7 @@
               "variable": [
                 {
                   "key": "id",
-                  "value": "project-id-here"
+                  "value": "{{projectId}}"
                 }
               ]
             },

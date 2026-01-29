@@ -13,23 +13,14 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { projectApi, CreateProjectData } from "@/lib/api/project";
+import { projectApi, Project, UpdateProjectData } from "@/lib/api/project";
 import { useToast } from "@/hooks/use-toast";
-import { ComboBox, ComboBoxOption } from "../ui/combo-box";
-import { teamApi } from "@/lib/api/team";
 
 interface EditProjectDialogProps {
   projectId: string;
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onProjectUpdated: () => void;
-}
-
-interface Project {
-  id: string;
-  name: string;
-  description: string;
-  teamId: string;
 }
 
 export function EditProjectDialog({
@@ -39,40 +30,32 @@ export function EditProjectDialog({
   onProjectUpdated,
 }: EditProjectDialogProps) {
   const [loading, setLoading] = useState(false);
-  const [loadingTeams, setLoadingTeams] = useState(false);
-  const [teamOptions, setTeamOptions] = useState<ComboBoxOption[]>([]);
+  const [fetching, setFetching] = useState(false);
   const { toast } = useToast();
-  const [formData, setFormData] = useState<CreateProjectData>({
+  const [formData, setFormData] = useState<UpdateProjectData>({
     name: "",
-    teamId: "",
     description: "",
+    startDate: "",
+    endDate: "",
   });
   const [originalData, setOriginalData] = useState<Project | null>(null);
 
-  // Fetch teams and project data when dialog opens
+  // Fetch project data when dialog opens
   useEffect(() => {
     if (open) {
-      fetchTeamsAndProject();
+      fetchProject();
     }
-  }, [open]);
+  }, [open, projectId]);
 
-  const fetchTeamsAndProject = async () => {
-    setLoading(true);
+  const fetchProject = async () => {
+    setFetching(true);
     try {
-      // Fetch teams
-      const teams = await teamApi.getAllTeams();
-      const teamOptions: ComboBoxOption[] = teams.map((team) => ({
-        value: team.id,
-        label: team.name,
-      }));
-      setTeamOptions(teamOptions);
-
-      // Fetch project details
       const project = await projectApi.getProject(projectId);
       setFormData({
         name: project.name,
-        teamId: project.teamId,
         description: project.description,
+        startDate: project.startDate ? project.startDate.split("T")[0] : "",
+        endDate: project.endDate ? project.endDate.split("T")[0] : "",
       });
       setOriginalData(project);
     } catch (error: any) {
@@ -82,7 +65,7 @@ export function EditProjectDialog({
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      setFetching(false);
     }
   };
 
@@ -93,7 +76,10 @@ export function EditProjectDialog({
     if (
       formData.name === originalData?.name &&
       formData.description === originalData?.description &&
-      formData.teamId === originalData?.teamId
+      formData.startDate ===
+        (originalData?.startDate ? originalData.startDate.split("T")[0] : "") &&
+      formData.endDate ===
+        (originalData?.endDate ? originalData.endDate.split("T")[0] : "")
     ) {
       toast({
         title: "Info",
@@ -105,7 +91,7 @@ export function EditProjectDialog({
     setLoading(true);
 
     try {
-      await projectApi.updateProject(Number(projectId), formData);
+      await projectApi.updateProject(projectId, formData);
       toast({
         title: "Success",
         description: "Project updated successfully",
@@ -140,45 +126,52 @@ export function EditProjectDialog({
               <Input
                 id="name"
                 placeholder="Enter project name"
-                value={formData.name}
+                value={formData.name || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, name: e.target.value })
                 }
-                disabled={loading}
+                disabled={loading || fetching}
                 required
               />
             </div>
             <div className="grid gap-2">
-              <Label htmlFor="description">Description *</Label>
+              <Label htmlFor="description">Description</Label>
               <Textarea
                 id="description"
-                placeholder="Enter project description"
-                value={formData.description}
+                placeholder="Enter project description (optional)"
+                value={formData.description || ""}
                 onChange={(e) =>
                   setFormData({ ...formData, description: e.target.value })
                 }
-                disabled={loading}
-                required
+                disabled={loading || fetching}
                 rows={3}
               />
             </div>
-            <div className="grid gap-2">
-              <Label htmlFor="team">Select Team *</Label>
-              <ComboBox
-                options={teamOptions}
-                value={formData.teamId}
-                onChange={(value) =>
-                  setFormData({ ...formData, teamId: value })
-                }
-                placeholder={
-                  loadingTeams ? "Loading teams..." : "Select a team"
-                }
-                searchPlaceholder="Search teams..."
-                emptyMessage={
-                  loadingTeams ? "Loading..." : "No teams available"
-                }
-                disabled={loading || teamOptions.length === 0}
-              />
+            <div className="grid grid-cols-2 gap-4">
+              <div className="grid gap-2">
+                <Label htmlFor="startDate">Start Date</Label>
+                <Input
+                  id="startDate"
+                  type="date"
+                  value={formData.startDate || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, startDate: e.target.value })
+                  }
+                  disabled={loading || fetching}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="endDate">End Date</Label>
+                <Input
+                  id="endDate"
+                  type="date"
+                  value={formData.endDate || ""}
+                  onChange={(e) =>
+                    setFormData({ ...formData, endDate: e.target.value })
+                  }
+                  disabled={loading || fetching}
+                />
+              </div>
             </div>
           </div>
           <DialogFooter>
@@ -186,11 +179,14 @@ export function EditProjectDialog({
               type="button"
               variant="outline"
               onClick={() => onOpenChange(false)}
-              disabled={loading}
+              disabled={loading || fetching}
             >
               Cancel
             </Button>
-            <Button type="submit" disabled={loading || !formData.teamId}>
+            <Button
+              type="submit"
+              disabled={loading || fetching || !formData.name}
+            >
               {loading ? "Updating..." : "Update Project"}
             </Button>
           </DialogFooter>

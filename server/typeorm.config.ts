@@ -1,6 +1,12 @@
 import { DataSource } from "typeorm";
 import path from "path";
 import * as dotenv from "dotenv";
+import { User } from "./src/entities/user.entity";
+import { Team } from "./src/entities/team.entity";
+import { TeamMember } from "./src/entities/team-member.entity";
+import { Task } from "./src/entities/task.entity";
+import { Project } from "./src/entities/project.entity";
+import { ProjectMember } from "./src/entities/project-member.entity";
 
 dotenv.config();
 
@@ -13,10 +19,7 @@ export const AppDataSource = new DataSource({
   database: process.env.DB_NAME || "pms_db",
   synchronize: process.env.NODE_ENV !== "production",
   logging: process.env.NODE_ENV === "development",
-  entities: [
-    path.join(__dirname, "src/entities/**/*.entity.ts"),
-    path.join(__dirname, "src/entities/**/*.entity.js"),
-  ],
+  entities: [User, Team, TeamMember, Task, Project, ProjectMember],
   migrations: [
     path.join(__dirname, "src/database/migrations/**/*.ts"),
     path.join(__dirname, "src/database/migrations/**/*.js"),
